@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Fireflies</title>
+      <meta charset="utf-8">
+      <style>
+         html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+         }
+         game {
+            display: block;
+         }
+         #area {
+            background: black;
+            display: block;
+            margin: auto;
+         }
+      </style>
+      <script type="text/javascript">
+
+         var canvas;
+         var WIDTH, HEIGHT;
+         var MAX_SPRITES = 200;
+         var context;
+         var sprites = [];
+
+         function Rect(width, height, top, left) {
+            this.width = width;
+            this.height = height;
+            this.top = top;
+            this.left = left;
+         }
+
+         Rect.prototype = {
+            collideRect: function(rect2) { 
+               return this.top < rect2.top + rect2.height &&
+                      this.top + this.height > rect2.top &&
+                      this.left < rect2.left + rect2.width &&
+                      this.left + this.width > rect2.left; 
+            },
+            collidePoint: function(x, y) {
+               return this.top < y && this.top + this.height > y &&
+                      this.left < x && this.left + this.width > x; 
+            },
+            fill: function(ctx, color) {
+               ctx.fillStyle = color;
+               ctx.fillRect(this.left, this.top, this.width, this.height);
+            }
+         };
+
+         var CYCLE = 4;
+         function fireflyColors(fpc) {
+            function firefly(x) {
+               var val;
+               if (x <= 2) {
+                  val = 255 * Math.pow(4, x) / 16;
+               } else {
+                  val = 255 * 16 / Math.pow(4, x);
+               }
+               val = Math.floor(val);
+               return 'rgb(' + val + ',' + val + ',0)';
+            }
+            var colors = [];
+            var inc = CYCLE / fpc;
+            for (var x = 0; x < CYCLE; x += inc) {
+               colors[colors.length] = firefly(x);
+            }
+            return colors;
+         }
+         var ffColors = fireflyColors(120);
+
+         function Ball() {
+            this.rect = new Rect(20, 20, Math.random() * HEIGHT, Math.random() * WIDTH);
+            this.colorIndex = Math.floor(Math.random() * this.colors.length);
+            this.age = 0;
+            this.children = 0;
+         }
+
+         Ball.prototype = {
+            dieAt: 10,
+            reproduceAfter: 5,
+            maxChildren: 2,
+            colors: ffColors,
+            vx: 240,
+            vy: 240,
+            update: function(ticks) {
+               this.age += ticks;
+               this.colorIndex = (this.colorIndex + 1) % this.colors.length;
+               this.rect.left += this.vx * ticks;
+               this.rect.top += this.vy * ticks;
+               if ((this.rect.left + this.rect.width >= WIDTH && this.vx > 0) ||
+                   (this.rect.left < 0 && this.vx < 0)) {
+                  this.vx = -this.vx;
+               }
+               if ((this.rect.top + this.rect.height >= HEIGHT && this.vy > 0) ||
+                   (this.rect.top < 0 && this.vy < 0)) {
+                  this.vy = -this.vy;
+               }
+               if (this.age >= this.reproduceAfter && this.children < this.maxChildren && Math.random() < 0.005 &&
+                   sprites.length < MAX_SPRITES) {
+                  this.children++;
+                  addBall();
+               }
+               if (this.age >= this.dieAt) {
+                  removeBall(this);
+               }
+            },
+            draw: function() {
+               this.rect.fill(context, this.colors[this.colorIndex]);
+            }
+         };
+
+         function addBall() {
+            sprites[sprites.length] = new Ball();
+         }
+
+         function removeBall(ball) {
+            var index = sprites.indexOf(ball);
+            if (index != -1) {
+               sprites.splice(index, 1);
+            }
+         }
+
+         function clearSprites() {
+            sprites = [];
+         }
+
+         function init() {
+            canvas = document.getElementById('area');
+            WIDTH = canvas.width = screen.width;
+            HEIGHT = canvas.height = screen.height;
+            context = canvas.getContext('2d');
+            addBall();
+            updateLoop();
+            window.addEventListener("keypress", handleKey, false);
+            canvas.addEventListener("mousemove", handleMouse, false);
+         }
+
+         // Calls update as close to 60fps as possible
+         var lastTimestamp;
+         function updateLoop(timestamp) {
+            window.requestAnimationFrame(updateLoop);
+            var ticks = 0;
+            if (lastTimestamp) {
+               ticks = (timestamp - lastTimestamp) / 1000;
+            }
+            lastTimestamp = timestamp;
+            update(ticks);
+         }
+
+         function clear() {
+            context.clearRect(0, 0, WIDTH, HEIGHT);
+         }
+
+         function updateSprites(ticks) {
+            var collisions = sprites.filter(function(sprite) {
+                  return sprite.rect.collideRect(mouseRect);
+               });
+            collisions.forEach(function(sprite) {
+                  sprite.vx *= -1;
+                  sprite.vy *= -1;
+               });
+            sprites.forEach(function(sprite) {
+                  sprite.update(ticks);
+               });
+         }
+
+         function drawSprites() {
+            sprites.forEach(function(sprite) {
+               sprite.draw();
+            });
+         }
+
+         function update(ticks) {
+            clear();
+            updateSprites(ticks);
+            drawSprites();
+         }
+
+         function handleKey(event) {
+            if (event.keyCode == 32) {
+               clearSprites();
+            } else {
+               addBall();
+            }
+         }
+
+         function canvasXY(event) {
+            return { x: event.pageX - canvas.offsetLeft,
+                     y: event.pageY - canvas.offsetTop };
+         }
+
+         var mouseRect = new Rect(5, 17, -5, -17);
+         function handleMouse(event) {
+            var xy = canvasXY(event);
+            mouseRect.top = xy.y;
+            mouseRect.left = xy.x;
+         }
+      </script>
+   </head>
+   <body onload="init()">
+      <game>
+         <canvas id="area"></canvas>
+      </game>
+   </body>
+</html>
