@@ -22,7 +22,7 @@
 
          var canvas;
          var WIDTH, HEIGHT;
-         var MAX_SPRITES = 200;
+         var MAX_SPRITES = 35;
          var context;
          var sprites = [];
 
@@ -55,12 +55,12 @@
             function firefly(x) {
                var val;
                if (x <= 2) {
-                  val = 255 * Math.pow(4, x) / 16;
+                  val = Math.pow(9, x) / 81;
                } else {
-                  val = 255 * 16 / Math.pow(4, x);
+                  val = 81 / Math.pow(9, x);
                }
-               val = Math.floor(val);
-               return 'rgb(' + val + ',' + val + ',0)';
+               return 'rgb(' + Math.floor(123 * val) + ','
+                             + Math.floor(255 * val) + ',0)';
             }
             var colors = [];
             var inc = CYCLE / fpc;
@@ -72,8 +72,10 @@
          var ffColors = fireflyColors(120);
 
          function Ball() {
-            this.rect = new Rect(20, 20, Math.random() * HEIGHT, Math.random() * WIDTH);
+            this.rect = new Rect(10, 10, Math.random() * HEIGHT, Math.random() * WIDTH);
             this.colorIndex = Math.floor(Math.random() * this.colors.length);
+            this.vx = Math.random() * (240 + 1) - 120;
+            this.vy = Math.random() * (120 + 1) - 60;
             this.age = 0;
             this.children = 0;
          }
@@ -83,8 +85,6 @@
             reproduceAfter: 5,
             maxChildren: 2,
             colors: ffColors,
-            vx: 240,
-            vy: 240,
             update: function(ticks) {
                this.age += ticks;
                this.colorIndex = (this.colorIndex + 1) % this.colors.length;
