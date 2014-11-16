@@ -173,6 +173,7 @@
                          && sprite.rect.collideRect(mouseFly.rect);
                });
             collisions.forEach(function(sprite) {
+                  playSound('chomp');
                   removeFly(sprite);
                });
             sprites.forEach(function(sprite) {
@@ -220,11 +221,18 @@
             mouseFly.rect.left = xy.x;
             mouseFly.rect.top = xy.y;
          }
+
+         function playSound(elemId) {
+            document.getElementById(elemId).play();
+         }
       </script>
    </head>
    <body onload="init()">
       <game>
          <canvas id="area"></canvas>
+         <audio id="chomp">
+            <source src="sounds/chomp.ogg">
+         </audio>
       </game>
    </body>
 </html>
