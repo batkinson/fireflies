@@ -84,6 +84,8 @@
             this.vy = Math.random() * (120 + 1) - 60;
             this.age = 0;
             this.children = 0;
+            this.eaten = false;
+            this.radius = 0;
          }
 
          Fly.prototype = {
@@ -92,30 +94,46 @@
             maxChildren: 2,
             colors: ffColors,
             update: function(ticks) {
-               this.age += ticks;
-               this.colorIndex = (this.colorIndex + 1) % this.colors.length;
-               this.rect.left += this.vx * ticks;
-               this.rect.top += this.vy * ticks;
-               if ((this.rect.left + this.rect.width >= WIDTH && this.vx > 0)
-                   || (this.rect.left < 0 && this.vx < 0)) {
-                  this.vx = -this.vx;
-               }
-               if ((this.rect.top + this.rect.height >= HEIGHT && this.vy > 0)
-                   || (this.rect.top < 0 && this.vy < 0)) {
-                  this.vy = -this.vy;
-               }
-               if (this.age >= this.reproduceAfter 
-                   && this.children < this.maxChildren 
-                   && Math.random() < 0.005) {
-                  this.children++;
-                  addFly();
-               }
-               if (this.age >= this.dieAt) {
-                  removeFly(this);
+               if (this.eaten) {
+                  if (this.radius < 20)
+                     this.radius += 4;
+                  else
+                     removeFly(this);
+               } else {
+                  this.age += ticks;
+                  this.colorIndex = (this.colorIndex + 1) % this.colors.length;
+                  this.rect.left += this.vx * ticks;
+                  this.rect.top += this.vy * ticks;
+                  if ((this.rect.left + this.rect.width >= WIDTH && this.vx > 0)
+                      || (this.rect.left < 0 && this.vx < 0)) {
+                     this.vx = -this.vx;
+                  }
+                  if ((this.rect.top + this.rect.height >= HEIGHT && this.vy > 0)
+                      || (this.rect.top < 0 && this.vy < 0)) {
+                     this.vy = -this.vy;
+                  }
+                  if (this.age >= this.reproduceAfter 
+                      && this.children < this.maxChildren 
+                      && Math.random() < 0.005) {
+                     this.children++;
+                     addFly();
+                  }
+                  if (this.age >= this.dieAt) {
+                     removeFly(this);
+                  }
                }
             },
             draw: function() {
                this.rect.fill(context, this.colors[this.colorIndex]);
+               if (this.eaten) {
+                  context.beginPath();
+                  context.fillStyle = 'rgba(123,255,0,.2)';
+                  context.arc(this.rect.left + (this.rect.width / 2),
+                              this.rect.top + (this.rect.height / 2),
+                              this.radius, 0, 2 * Math.PI, false);
+                  context.fill();
+                  context.stroke();
+               }
             }
          };
 
@@ -174,7 +192,7 @@
                });
             collisions.forEach(function(sprite) {
                   playSound('chomp');
-                  removeFly(sprite);
+                  sprite.eaten = true;
                });
             sprites.forEach(function(sprite) {
                   sprite.update(ticks);
