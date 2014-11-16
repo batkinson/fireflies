@@ -99,8 +99,7 @@
                    (this.rect.top < 0 && this.vy < 0)) {
                   this.vy = -this.vy;
                }
-               if (this.age >= this.reproduceAfter && this.children < this.maxChildren && Math.random() < 0.005 &&
-                   sprites.length < MAX_SPRITES) {
+               if (this.age >= this.reproduceAfter && this.children < this.maxChildren && Math.random() < 0.005) {
                   this.children++;
                   addBall();
                }
@@ -114,7 +113,9 @@
          };
 
          function addBall() {
-            sprites[sprites.length] = new Ball();
+            if (sprites.length < MAX_SPRITES) {
+               sprites[sprites.length] = new Ball();
+            }
          }
 
          function removeBall(ball) {
