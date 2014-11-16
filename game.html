@@ -191,8 +191,7 @@
                          && sprite.rect.collideRect(mouseFly.rect);
                });
             collisions.forEach(function(sprite) {
-                  playSound('chomp');
-                  sprite.eaten = true;
+                  eatFly(sprite);
                });
             sprites.forEach(function(sprite) {
                   sprite.update(ticks);
@@ -232,6 +231,11 @@
             mouseFly.update = function() {
                this.colorIndex = (this.colorIndex + 1) % this.colors.length;
             }
+         }
+
+         function eatFly(fly) {
+            playSound('chomp');
+            fly.eaten = true;
          }
 
          function handleMouse(event) {
