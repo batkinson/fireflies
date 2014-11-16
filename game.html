@@ -36,14 +36,16 @@
 
          Rect.prototype = {
             collideRect: function(rect2) { 
-               return this.top < rect2.top + rect2.height &&
-                      this.top + this.height > rect2.top &&
-                      this.left < rect2.left + rect2.width &&
-                      this.left + this.width > rect2.left; 
+               return this.top < rect2.top + rect2.height
+                      && this.top + this.height > rect2.top
+                      && this.left < rect2.left + rect2.width
+                      && this.left + this.width > rect2.left;
             },
             collidePoint: function(x, y) {
-               return this.top < y && this.top + this.height > y &&
-                      this.left < x && this.left + this.width > x; 
+               return this.top < y
+                      && this.top + this.height > y
+                      && this.left < x
+                      && this.left + this.width > x;
             },
             fill: function(ctx, color) {
                ctx.fillStyle = color;
@@ -74,7 +76,9 @@
          var ffColors = fireflyColors(123, 255, 0, 120);
 
          function Fly() {
-            this.rect = new Rect(10, 10, Math.random() * HEIGHT, Math.random() * WIDTH);
+            this.rect = new Rect(10, 10, 
+                                 Math.random() * HEIGHT,
+                                 Math.random() * WIDTH);
             this.colorIndex = Math.floor(Math.random() * this.colors.length);
             this.vx = Math.random() * (240 + 1) - 120;
             this.vy = Math.random() * (120 + 1) - 60;
@@ -92,15 +96,17 @@
                this.colorIndex = (this.colorIndex + 1) % this.colors.length;
                this.rect.left += this.vx * ticks;
                this.rect.top += this.vy * ticks;
-               if ((this.rect.left + this.rect.width >= WIDTH && this.vx > 0) ||
-                   (this.rect.left < 0 && this.vx < 0)) {
+               if ((this.rect.left + this.rect.width >= WIDTH && this.vx > 0)
+                   || (this.rect.left < 0 && this.vx < 0)) {
                   this.vx = -this.vx;
                }
-               if ((this.rect.top + this.rect.height >= HEIGHT && this.vy > 0) ||
-                   (this.rect.top < 0 && this.vy < 0)) {
+               if ((this.rect.top + this.rect.height >= HEIGHT && this.vy > 0)
+                   || (this.rect.top < 0 && this.vy < 0)) {
                   this.vy = -this.vy;
                }
-               if (this.age >= this.reproduceAfter && this.children < this.maxChildren && Math.random() < 0.005) {
+               if (this.age >= this.reproduceAfter 
+                   && this.children < this.maxChildren 
+                   && Math.random() < 0.005) {
                   this.children++;
                   addFly();
                }
