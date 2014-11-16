@@ -73,7 +73,7 @@
          }
          var ffColors = fireflyColors(123, 255, 0, 120);
 
-         function Ball() {
+         function Fly() {
             this.rect = new Rect(10, 10, Math.random() * HEIGHT, Math.random() * WIDTH);
             this.colorIndex = Math.floor(Math.random() * this.colors.length);
             this.vx = Math.random() * (240 + 1) - 120;
@@ -82,7 +82,7 @@
             this.children = 0;
          }
 
-         Ball.prototype = {
+         Fly.prototype = {
             dieAt: 10,
             reproduceAfter: 5,
             maxChildren: 2,
@@ -102,10 +102,10 @@
                }
                if (this.age >= this.reproduceAfter && this.children < this.maxChildren && Math.random() < 0.005) {
                   this.children++;
-                  addBall();
+                  addFly();
                }
                if (this.age >= this.dieAt) {
-                  removeBall(this);
+                  removeFly(this);
                }
             },
             draw: function() {
@@ -113,13 +113,13 @@
             }
          };
 
-         function addBall() {
+         function addFly() {
             if (sprites.length < MAX_SPRITES) {
-               sprites[sprites.length] = new Ball();
+               sprites[sprites.length] = new Fly();
             }
          }
 
-         function removeBall(ball) {
+         function removeFly(ball) {
             var index = sprites.indexOf(ball);
             if (index != -1) {
                sprites.splice(index, 1);
@@ -128,7 +128,7 @@
 
          function clearSprites() {
             sprites = sprites.filter(function(sprite) {
-               return sprite === mouseBall;
+               return sprite === mouseFly;
             });
          }
 
@@ -137,9 +137,9 @@
             WIDTH = canvas.width = screen.width;
             HEIGHT = canvas.height = screen.height;
             context = canvas.getContext('2d');
-            addMouseBall();
+            addMouseFly();
             while (sprites.length < Math.floor(MAX_SPRITES * 0.5))
-               addBall();
+               addFly();
             updateLoop();
             window.addEventListener("keypress", handleKey, false);
             canvas.addEventListener("mousemove", handleMouse, false);
@@ -163,11 +163,11 @@
 
          function updateSprites(ticks) {
             var collisions = sprites.filter(function(sprite) {
-                  return sprite != mouseBall 
-                        && sprite.rect.collideRect(mouseBall.rect);
+                  return sprite != mouseFly
+                         && sprite.rect.collideRect(mouseFly.rect);
                });
             collisions.forEach(function(sprite) {
-                  removeBall(sprite);
+                  removeFly(sprite);
                });
             sprites.forEach(function(sprite) {
                   sprite.update(ticks);
@@ -190,7 +190,7 @@
             if (event.keyCode == 32) {
                clearSprites();
             } else {
-               addBall();
+               addFly();
             }
          }
 
@@ -199,20 +199,20 @@
                      y: event.pageY - canvas.offsetTop };
          }
 
-         var mouseBall;
-         function addMouseBall() {
-            mouseBall = new Ball();
-            sprites[sprites.length] = mouseBall;
-            mouseBall.colors = fireflyColors(255, 123, 0, 120);
-            mouseBall.update = function() {
+         var mouseFly;
+         function addMouseFly() {
+            mouseFly = new Fly();
+            sprites[sprites.length] = mouseFly;
+            mouseFly.colors = fireflyColors(255, 123, 0, 120);
+            mouseFly.update = function() {
                this.colorIndex = (this.colorIndex + 1) % this.colors.length;
             }
          }
 
          function handleMouse(event) {
             var xy = canvasXY(event);
-            mouseBall.rect.left = xy.x;
-            mouseBall.rect.top = xy.y;
+            mouseFly.rect.left = xy.x;
+            mouseFly.rect.top = xy.y;
          }
       </script>
    </head>
