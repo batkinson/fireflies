@@ -16,6 +16,7 @@
             background: black;
             display: block;
             margin: auto;
+            cursor: none;
          }
       </style>
       <script type="text/javascript">
@@ -124,7 +125,9 @@
          }
 
          function clearSprites() {
-            sprites = [];
+            sprites = sprites.filter(function(sprite) {
+               return sprite === mouseBall;
+            });
          }
 
          function init() {
@@ -156,7 +159,8 @@
 
          function updateSprites(ticks) {
             var collisions = sprites.filter(function(sprite) {
-                  return sprite.rect.collideRect(mouseRect);
+                  return sprite != mouseBall 
+                        && sprite.rect.collideRect(mouseBall.rect);
                });
             collisions.forEach(function(sprite) {
                   sprite.vx *= -1;
@@ -192,11 +196,20 @@
                      y: event.pageY - canvas.offsetTop };
          }
 
-         var mouseRect = new Rect(5, 17, -5, -17);
+         var mouseBall;
+         function addMouseBall() {
+            mouseBall = new Ball();
+            sprites[sprites.length] = mouseBall;
+            mouseBall.update = function() {
+               this.colorIndex = (this.colorIndex + 1) % this.colors.length;
+            }
+         }
+         addMouseBall();
+
          function handleMouse(event) {
             var xy = canvasXY(event);
-            mouseRect.top = xy.y;
-            mouseRect.left = xy.x;
+            mouseBall.rect.left = xy.x;
+            mouseBall.rect.top = xy.y;
          }
       </script>
    </head>
